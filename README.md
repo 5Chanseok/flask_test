@@ -15,7 +15,7 @@ practicing &amp; testing flask
                 - React or Vue or Angular : 전면 or 부분 구성
             - back-end
                 - 기능별 구현
-                    - 페이지별 진행
+                    - 페이지별 진행 ->  url 준비 (ex) 만약 10 개라면,
                     - 모델 서빙, 머신러닝/딥러닝 관련 서비스 기능 삽입
                     - 데이터 분석, 시각화 -> 파이썬 기반 웹에서 가지는 강점(파이썬이라는 언어로 구성하기 때문)
                 - 공통 기능 구현
