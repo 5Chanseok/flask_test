@@ -39,11 +39,11 @@ def login():
     else: # post
           # request.form['uid'] ---> 값이 누락되면 서버 셧다운, 사용 금지
           # 1. 로그인 정보 획득
-        uid = request.form.get('name')
-        upw = request.form.get('age')   # 암호는 차후에 암화화 해야한다.(관리자도 볼 수 없다. 해싱)
+        uid = request.form.get('uid')
+        upw = request.form.get('upw')   # 암호는 차후에 암화화 해야한다.(관리자도 볼 수 없다. 해싱)
         print(uid, upw)
           # 2. 회원 여부 쿼리
-        select_login()
+        select_login(uid, upw)
           # 3. 회원이면
               # 3-1. 세션 생성, 기타 필요한 조치 수행
               # 3-2. 서비스 메인 화면으로 이동
