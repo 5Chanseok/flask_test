@@ -5,9 +5,15 @@
 '''
 from flask import render_template, request
 from service.controllers import bp_main as main     # 경로는 엔트리부터 시작한다!!!!
-
+from service.forms import FormQuestion
 
 # ~/main/
 @main.route('/')
 def home():
     return render_template('index.html')
+
+# ~/main/question
+@main.route('/question')
+def question():
+    form = FormQuestion()
+    return render_template('question.html', wtf=form)
