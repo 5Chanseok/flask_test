@@ -10,4 +10,4 @@ from service.controllers import bp_main as main     # 경로는 엔트리부터 
 # ~/main/
 @main.route('/')
 def home():
-    return "main 홈"
+    return render_template('index.html')
