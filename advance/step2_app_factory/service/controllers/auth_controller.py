@@ -11,6 +11,8 @@ from datetime import datetime, timedelta
 from flask import current_app
 import jwt
 
+import bcrypt
+
 @auth.route('/')
 def home():
     # 별칭.함수명 => url_for(앞의 내용 기입) => url이 리턴된다.
@@ -48,6 +50,14 @@ def logout():
 
 @auth.route('/signup')
 def signup():
+    # TODO : 비밀번호 암호화
+    password ='1234'
+    # 암호화된 값은 DB에 패스워드 컬럼에 저장
+    b = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    # 확인 및 복호화
+    # bcrypt.checkpw() => 이것으로 암호가 일치하는지만 체크해서 로그인 시 활용
+    # 우리는 연습하기 위해 비밀번호를 설정해서 활용했지만, 실제로는 암호화된 비밀번호를 일치하는지 체크하여 활용
+    print(password, b, bcrypt.checkpw(password.encode('utf-8'), b))
     return "auth signup"
 
 @auth.route('/delete')
