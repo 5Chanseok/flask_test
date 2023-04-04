@@ -1,7 +1,12 @@
 # 사용자가 정의한(커스텀) 엔트리 포인트
 # service를 대변하는 init 파일이다.
 from flask import Flask
+# TODO: ORM을 위한 추가
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
+db = SQLAlchemy()
+migrate = Migrate()
 '''
     create_app은 플래스크 내부에서 정의된 함수명(수정 X)
     flask run을 수행하면 내부적으로 엔트리포인트 모듈에서 create_app()를 찾는다.
@@ -13,6 +18,8 @@ def create_app():
 
     # 환경변수 초기화
     init_environment(app)
+    # 데이터베이스 초기화
+    init_database(app)
     # 블루프린트 초기화
     init_blueprint(app)
     
@@ -50,3 +57,15 @@ def init_blueprint(app):
     app.register_blueprint(bp_main)
     app.register_blueprint(bp_auth)
     pass
+
+def init_database(app):
+    # pool
+    from .model import pool_sql
+    pool_sql.init_pool()
+    # 테스트
+    print(pool_sql.login('guest', '1234'))
+    # ORM을 위한 flask 객체와 sqlalchemy 객체, migrate 객체 연결
+    db.init_app(app)
+    migrate.init_app(app, db)
+    from .model import models
+    
