@@ -67,5 +67,5 @@ def init_database(app):
     # ORM을 위한 flask 객체와 sqlalchemy 객체, migrate 객체 연결
     db.init_app(app)
     migrate.init_app(app, db)
-    from .model import models
+    # from .model import models
     
