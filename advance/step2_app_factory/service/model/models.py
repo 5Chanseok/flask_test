@@ -14,7 +14,7 @@ class Question(db.Model):
     title    = db.Column(db.String(256), nullable=False)
     content  = db.Column(db.Text(),      nullable=False)
     reg_date = db.Column(db.DateTime(),  nullable=False)
-    pass
+    
 
 # 답변 테이블
 # question_id : 답변과 질문을 연결하기 위해 추가된 속성
@@ -31,4 +31,4 @@ class Answer(db.Model):
     question    = db.relationship('Question', backref=db.backref('answer_set'))
     content     = db.Column(db.Text(),     nullable=False)
     reg_date    = db.Column(db.DateTime(), nullable=False)    
-    pass
+    

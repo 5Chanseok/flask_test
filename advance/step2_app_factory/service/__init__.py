@@ -60,12 +60,12 @@ def init_blueprint(app):
 
 def init_database(app):
     # pool
-    from .model import pool_sql
-    pool_sql.init_pool()
-    # 테스트
-    print(pool_sql.login('guest', '1234'))
+    # from .model import pool_sql
+    # pool_sql.init_pool()
+    # # 테스트
+    # print(pool_sql.login('guest', '1234'))
     # ORM을 위한 flask 객체와 sqlalchemy 객체, migrate 객체 연결
     db.init_app(app)
     migrate.init_app(app, db)
-    # from .model import models
+    from .model import models
     
