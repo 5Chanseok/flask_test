@@ -135,10 +135,114 @@
         - 데이터베이스 생성, 초기화
             - --app service 는 없어도 되는데, 이 앱은 app or wsfi로 시작하는 엔트리가 없어서 별도로 지정해야한다.
             - flask --app service db init
+                - sqlite : 소형 데이터베이스, 스마트폰에 사용하는 DB 의 경우에는 데이터베이스 생성을 자동으로 해줌, 파일럿 형태에서 사용
+                - mysql 같은 데이터베이스(케이스별로 상이)는 실제로는 생성 안됨.
             - 명령어를 입력하면 migration 폴더가 생성된다.(내부는 자동으로 만들어지는 구조이므로 관여하지 않는다. 단, versions 밑으로 수정할 때마다 새로운 버전의 DB 관련 내용이 생성된다.)
         - 모델(테이블) 생성, 변경
+            - model > models.py 에 테이블 관련 내용 기술
+            - service > __init__.py
+                - from .model import models : 주석 해제, 신규 작성
             - flask --app service db migrate
+            ```
+                MariaDB [my_db]> show tables;
+                +-----------------+
+                | Tables_in_my_db |
+                +-----------------+
+                | alembic_version |
+                +-----------------+
+                1 row in set (0.001 sec)
+            ```
         - 모델(테이블) 생성, 변경 후 데이터베이스에 적용
             - flask --app service db upgrade
         - 컨테이너 이미지 생성 시
-            - 위의 명령들 세 개를 차례대로 수행해서 데이터베이스 초기화 및 생성 과정을 수행    
+            - 위의 명령들 세 개를 차례대로 수행해서 데이터베이스 초기화 및 생성 과정을 수행
+    - 필요한 기능들 시뮬레이션
+        - DBA는 sql문을 작성해서 쿼리 구현
+        - ORM에서는 shell을 열어서 파이썬 코드로 구현
+        - flask --app service shell
+            - 질문 등록
+                ```
+                    >>> from service.model.models import Question, Answer
+                    >>> from datetime import datetime
+                    >>> q1 = Question(title="질문1", content="내용1", reg_date=datetime.now())   
+                    >>> from service import db
+                    >>> db.session.add(q1)
+                    >>> db.session.commit()
+                ```
+            - 질문 조회
+                ```
+                >>> Question.query.all()
+                [<Question 1>]
+                >>> qs = Question.query.all()
+                >>> qs[0]
+                <Question 1>
+                >>> qs[0].id
+                >>> qs[0].title
+                '질문1'
+                1   
+                >>> Question.query.get(1)
+                <Question 1>
+                # 내용 중에 '용' 문자열이 존재하면 다 가져오시오.
+                # select * from question where content like '%용%';
+                # %용, %용%, 용% <- 내용 검색
+                >>> Question.query.filter(Question.content.like('%용%')).all()
+                [<Question 1>]
+                ```
+            - 질문 수정
+                ```
+                    >>> q1 = Question.query.get(1)
+                    >>> q1
+                    <Question 1>
+                    >>> q1.title
+                    '질문1'
+                    # 변경하고 싶은 부분은 수정하면 된다.
+                    # update question set tilte='질문11111' where id=1;
+                    >>> q1.title = '질문11111'
+                    >>> db.session.commit()
+                    >>> q1.title
+                    '질문11111'
+                ```
+            - 질문 삭제
+                ```
+                    q1 = Question.query.get(1)
+                    # delete from question where id=1;
+                    db.session.delete(q1)
+                    db.session.commit()
+                ```
+            - 답변 등록
+                ```
+                     # 질문 한 개를 찾고 -> 답변을 등록
+                    a = Answer(question=q2, content="질문에 대한 답변입니다.", reg_date=datetime.now())
+                    db.session.add(a)
+                    db.session.commit()
+                ```
+            - 답변을 통해서 답변 찾기
+                ```
+                    a.question
+                ```
+            - 질문을 통해서 답변 찾기
+                ```
+                    # 역참조의 이름을 사용하여 답변들을 다 찾아온다.
+                    q2.answer_set
+                ```
+            - 질문을 삭제하면 답변도 다 삭제되는가?
+                ```
+                    db.session.delete(q2)
+                    db.session.commit()
+
+                    # 답변의 참조 question_id 값만 무효화 되었다.
+                    # 작성자가 서로 다르므로 삭제 권리는 없고 참조만 제거했다.
+                    MariaDB [my_db]> select * from answer;
+                    +----+-------------+-----------------------------------+---------------------+
+                    | id | question_id | content                           | reg_date            |
+                    +----+-------------+-----------------------------------+---------------------+
+                    |  1 |        NULL | 질문에 대한 답변입니다.            | 2023-04-05 13:16:15 |
+                    +----+-------------+-----------------------------------+---------------------+
+                    1 row in set (0.000 sec)
+
+                    # 본인 답변 삭제
+                    >>> db.session.delete(a)  
+                    >>> db.session.commit()
+                    MariaDB [my_db]> select * from answer;
+                    Empty set (0.000 sec)
+                ```
